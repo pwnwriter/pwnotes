@@ -3,7 +3,8 @@
 [About](./about.md)
 
 # Rustlang
-- [Basics](./rust/index.md)
+- [Basics](./rust/basics.md)
+- [rust-anlyzer single file support](./rust/single-file.md)
 
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)

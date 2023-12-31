@@ -9,6 +9,7 @@ This is a running note along the way as i learn [Rustlang][rustlang]. Nothing fa
 
 
 
+
 <!-- Links-->
 [rustlang]: https://rustlang.org
 [rustup]: https://rustup.rs
