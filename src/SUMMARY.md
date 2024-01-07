@@ -6,7 +6,7 @@
 <!-- - [Assembly](./assemly/index.md) -->
 
 # Rustlang
-- [Basic](./rust/basics.md)
+- [Basics](./rust/basics.md)
 - [Iterators](./rust/iterators.md)
 
 # Shell scripting

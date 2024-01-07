@@ -26,6 +26,31 @@ Here, i manually defined `rustup` home. By default it's `~/.rustup`
 export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
 ```
 
+### Define `crates` deps inside a single file.
+
+```rust
+//! ```cargo
+//! [dependencies]
+//! clap = { version = "4.2", features = ["derive"] }
+//! ```
+
+extern crate clap;
+
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(version)]
+struct Args {
+    #[arg(short, long, default_value = "PwnWriter")]
+    pub name: String,
+}
+
+fn main() {
+    let args = Args::parse();
+    println!("{}", args.name);
+}
+```
+
 <!-- Links-->
 [rustlang]: https://rustlang.org
 [rustup]: https://rustup.rs
