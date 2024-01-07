@@ -2,8 +2,12 @@
 
 [About](./about.md)
 
+<!-- # Assembly -->
+<!-- - [Assembly](./assemly/index.md) -->
+
 # Rustlang
-- [Basics](./rust/basics.md)
+- [Basic](./rust/basics.md)
+- [Iterators](./rust/iterators.md)
 
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)
