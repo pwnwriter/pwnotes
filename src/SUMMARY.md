@@ -8,6 +8,7 @@
 # Rustlang
 - [Basics](./rust/basics.md)
 - [Iterators](./rust/iterators.md)
+- [Stdin via cursor](./rust/stdin.md)
 
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)
