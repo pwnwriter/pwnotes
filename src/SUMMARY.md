@@ -10,6 +10,9 @@
 - [Iterators](./rust/iterators.md)
 - [Stdin via cursor](./rust/stdin.md)
 
+# Linux server
+- [Google auth](./server/google-authentication.md)
+
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)
 - [Generate ssh keys](./bash/ssh_gen.md)
