@@ -47,8 +47,6 @@
     auth required pam_google_authenticator.so nullok
     ```
 
-3. **Save and close the file (Ctrl+X, then Y, then Enter).**
-
 4. **Edit the SSH daemon configuration file:**
 
     ```bash
@@ -74,8 +72,6 @@
       ```plaintext
       AuthenticationMethods publickey,password publickey,keyboard-interactive
       ```
-
-6. **Save and close the file (Ctrl+X, then Y, then Enter).**
 
 ## Step 4: Restart the SSH Service
 

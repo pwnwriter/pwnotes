@@ -11,7 +11,7 @@
 - [Stdin via cursor](./rust/stdin.md)
 
 # Linux server
-- [Google auth](./server/google-authentication.md)
+- [Google authentication on server](./server/google-authentication.md)
 
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)
