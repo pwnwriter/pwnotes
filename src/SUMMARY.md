@@ -12,6 +12,7 @@
 
 # Linux server
 - [Google authentication on server](./server/google-authentication.md)
+- [SSL on a domain using nginx and certbot](./server/ssl_certificate.md)
 
 # Shell scripting
 - [Mounting a dir on Ram](./bash/index.md)
