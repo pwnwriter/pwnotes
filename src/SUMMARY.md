@@ -10,6 +10,9 @@
 - [Iterators](./rust/iterators.md)
 - [Stdin via cursor](./rust/stdin.md)
 
+# Nix os/lang
+- [home-manager](./nix/home-manager.md)
+
 # Linux server
 - [Google authentication on server](./server/google-authentication.md)
 - [SSL on a domain using nginx and certbot](./server/ssl_certificate.md)
