@@ -1,17 +1,26 @@
 ### Migrating from Jenkins to GitHub Actions for CI/CD
 
 #### Introduction
-Jenkins has been a go-to tool for CI/CD for many developers. However, it can be
-heavy and complex for smaller projects or when simplicity is desired. In this
-blog post, I will walk you through my experience migrating from Jenkins to
-GitHub Actions for CI/CD, highlighting the reasons for the switch and the steps
-taken to implement a new workflow.
+Jenkins has been a go-to tool for CI/CD for many developers. However, it can be heavy and complex for smaller projects or when simplicity is desired. In this blog post, I will walk you through my experience migrating from Jenkins to GitHub Actions for CI/CD, highlighting the reasons for the switch and the steps taken to implement a new workflow.
+
+#### Prerequisites
+Before you start the migration, ensure you have the following:
+- A GitHub repository for your project.
+- Access to your VPS (Virtual Private Server) where the application will be deployed.
+- SSH keys generated and configured for your VPS.
+- GitHub secrets configured for storing sensitive information like SSH keys.
 
 #### Why Migrate from Jenkins to GitHub Actions?
-- Complexity and Maintenance: Jenkins requires managing a separate server and handling its updates and maintenance, which can be time-consuming.
-- Performance: Jenkins can be resource-intensive, which might be overkill for smaller projects.
-- Integration: GitHub Actions provides seamless integration with GitHub repositories, making it easier to manage workflows within the same platform.
-- Simplicity: GitHub Actions offers a straightforward YAML configuration, which is easier to read and manage compared to Jenkins' XML-based configurations.
+- **Complexity and Maintenance**: Jenkins requires managing a separate server and handling its updates and maintenance, which can be time-consuming.
+- **Performance**: Jenkins can be resource-intensive, which might be overkill for smaller projects.
+- **Integration**: GitHub Actions provides seamless integration with GitHub repositories, making it easier to manage workflows within the same platform.
+- **Simplicity**: GitHub Actions offers a straightforward YAML configuration, which is easier to read and manage compared to Jenkins' XML-based configurations.
+
+being small but absolute working workaround works as follows.
+
+- This workflow run on push on `main` branch and deploys in github and then only in vps.
+
+![](https://null.pwnwriter.xyz/closing-dinosaur.png)
 
 In this guide, we'll be using [appleboy/ssh-action](https://github.com/appleboy/ssh-action), which lets you ssh into the server and run particular script.
 
@@ -19,9 +28,8 @@ For this workflow, we'll first need to have our ssh keys in our vps and the user
 
 You'll want to generate ssh keys and then put your public keys in `authorized_keys`, which simply lets the current user ssh into the sever.
 
-
 #### Setting Up the GitHub Actions Workflow
-After generating ssh keys, put your.
+After generating ssh keys, put your:
 - PRIVATE_KEY, USERNAME, and HOST in your repository's secrets variables.
 
 Here’s the GitHub Actions workflow that I set up to build and deploy my web application to a VPS:
@@ -69,8 +77,9 @@ jobs:
           script: |
             cd ~/source_dir/
             bash ./.github/deployer.sh
-
 ```
+
+
 A graph of this workflow
 ![](https://null.pwnwriter.xyz/unified-bull.png)
 
@@ -179,9 +188,9 @@ main() {
         exit 1
     }
 
-    print_info "Pulling latest changes from the production branch"
-    git pull origin production --rebase || {
-        print_error "Failed to pull latest changes from production branch"
+    print_info "Pulling latest changes from the main branch"
+    git pull origin main --rebase || {
+        print_error "Failed to pull latest changes from main branch"
         exit 1
     }
 
