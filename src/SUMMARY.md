@@ -12,6 +12,7 @@
 
 # Nix os/lang
 - [home-manager](./nix/home-manager.md)
+- [nixos on hetzner vps](./nix/nixos-hetzner-vps.md)
 
 # Linux server
 - [Google authentication on server](./server/google-authentication.md)
