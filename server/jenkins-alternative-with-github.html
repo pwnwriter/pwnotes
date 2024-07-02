@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Using github ci,cd instead of jenkins - pwnwriter&#x27;s notes</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././theme/catppuccin.css">
+        <link rel="stylesheet" href=".././theme/catppuccin-admonish.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">About</a></li><li class="chapter-item expanded affix "><li class="part-title">Rustlang</li><li class="chapter-item expanded "><a href="../rust/basics.html"><strong aria-hidden="true">1.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../rust/iterators.html"><strong aria-hidden="true">2.</strong> Iterators</a></li><li class="chapter-item expanded "><a href="../rust/stdin.html"><strong aria-hidden="true">3.</strong> Stdin via cursor</a></li><li class="chapter-item expanded affix "><li class="part-title">Nix os/lang</li><li class="chapter-item expanded "><a href="../nix/home-manager.html"><strong aria-hidden="true">4.</strong> home-manager</a></li><li class="chapter-item expanded "><a href="../nix/nixos-hetzner-vps.html"><strong aria-hidden="true">5.</strong> nixos on hetzner vps</a></li><li class="chapter-item expanded affix "><li class="part-title">Linux server</li><li class="chapter-item expanded "><a href="../server/google-authentication.html"><strong aria-hidden="true">6.</strong> Google authentication on server</a></li><li class="chapter-item expanded "><a href="../server/ssl_certificate.html"><strong aria-hidden="true">7.</strong> SSL on a domain using nginx and certbot</a></li><li class="chapter-item expanded "><a href="../server/jenkins-alternative-with-github.html" class="active"><strong aria-hidden="true">8.</strong> Using github ci,cd instead of jenkins</a></li><li class="chapter-item expanded affix "><li class="part-title">Shell scripting</li><li class="chapter-item expanded "><a href="../bash/index.html"><strong aria-hidden="true">9.</strong> Mounting a dir on Ram</a></li><li class="chapter-item expanded "><a href="../bash/ssh_gen.html"><strong aria-hidden="true">10.</strong> Generate ssh keys</a></li><li class="chapter-item expanded "><a href="../bash/enumeration.html"><strong aria-hidden="true">11.</strong> Enumeration on *nix</a></li><li class="chapter-item expanded "><a href="../bash/random.html"><strong aria-hidden="true">12.</strong> Random scripts </a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mocha">Mocha</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="macchiato">Macchiato</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="frappe">Frappé</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="latte">Latte</button></li>
+                        
+                            <!-- 
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            -->
+
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">pwnwriter&#x27;s notes</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h3 id="migrating-from-jenkins-to-github-actions-for-cicd"><a class="header" href="#migrating-from-jenkins-to-github-actions-for-cicd">Migrating from Jenkins to GitHub Actions for CI/CD</a></h3>
+<h4 id="introduction"><a class="header" href="#introduction">Introduction</a></h4>
+<p>Jenkins has been a go-to tool for CI/CD for many developers. However, it can be heavy and complex for smaller projects or when simplicity is desired. In this blog post, I will walk you through my experience migrating from Jenkins to GitHub Actions for CI/CD, highlighting the reasons for the switch and the steps taken to implement a new workflow.</p>
+<h4 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h4>
+<p>Before you start the migration, ensure you have the following:</p>
+<ul>
+<li>A GitHub repository for your project.</li>
+<li>Access to your VPS (Virtual Private Server) where the application will be deployed.</li>
+<li>SSH keys generated and configured for your VPS.</li>
+<li>GitHub secrets configured for storing sensitive information like SSH keys.</li>
+</ul>
+<h4 id="why-migrate-from-jenkins-to-github-actions"><a class="header" href="#why-migrate-from-jenkins-to-github-actions">Why Migrate from Jenkins to GitHub Actions?</a></h4>
+<ul>
+<li><strong>Complexity and Maintenance</strong>: Jenkins requires managing a separate server and handling its updates and maintenance, which can be time-consuming.</li>
+<li><strong>Performance</strong>: Jenkins can be resource-intensive, which might be overkill for smaller projects.</li>
+<li><strong>Integration</strong>: GitHub Actions provides seamless integration with GitHub repositories, making it easier to manage workflows within the same platform.</li>
+<li><strong>Simplicity</strong>: GitHub Actions offers a straightforward YAML configuration, which is easier to read and manage compared to Jenkins' XML-based configurations.</li>
+</ul>
+<p>being small but absolute working workaround works as follows.</p>
+<ul>
+<li>This workflow run on push on <code>main</code> branch and deploys in github and then only in vps.</li>
+</ul>
+<p><img src="https://null.pwnwriter.xyz/closing-dinosaur.png" alt="" /></p>
+<p>In this guide, we'll be using <a href="https://github.com/appleboy/ssh-action">appleboy/ssh-action</a>, which lets you ssh into the server and run particular script.</p>
+<p>For this workflow, we'll first need to have our ssh keys in our vps and the user must be able to login via ssh.</p>
+<p>You'll want to generate ssh keys and then put your public keys in <code>authorized_keys</code>, which simply lets the current user ssh into the sever.</p>
+<h4 id="setting-up-the-github-actions-workflow"><a class="header" href="#setting-up-the-github-actions-workflow">Setting Up the GitHub Actions Workflow</a></h4>
+<p>After generating ssh keys, put your:</p>
+<ul>
+<li>PRIVATE_KEY, USERNAME, and HOST in your repository's secrets variables.</li>
+</ul>
+<p>Here’s the GitHub Actions workflow that I set up to build and deploy my web application to a VPS:</p>
+<pre><code class="language-yaml">name: Test the web app and deploy on vps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Nix package manager
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Node.js and pnpm
+        run: |
+          nix profile install nixpkgs#nodejs_22
+          nix profile install nixpkgs#nodePackages_latest.pnpm
+
+      - name: Build website
+        run: |
+          pnpm install
+          pnpm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy over the vps
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/source_dir/
+            bash ./.github/deployer.sh
+</code></pre>
+<p>A graph of this workflow
+<img src="https://null.pwnwriter.xyz/unified-bull.png" alt="" /></p>
+<h3 id="the-deployer-script"><a class="header" href="#the-deployer-script">The deployer script</a></h3>
+<p>The following script is ran by github actions on github build success</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+# Written by @pwnwriter
+# This script builds the Nest Nepal website. If the build fails, it attempts to build from the previous commit.
+
+### Variables
+
+USER="ubuntu"
+REPO_DIR="/home/${USER}/repo_name"
+INFO_DIR="/home/${USER}/repo_name-log"
+LOG_FILE="$INFO_DIR/build.log"
+SERVER_LOG="$INFO_DIR/server.log"
+PORT=3002
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# -------------------- Helper functions ---------
+
+# Appends log messages
+append_log() {
+    printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$LOG_FILE"
+}
+
+# Prints informational messages
+print_info() {
+    local message="${1}"
+    printf "${YELLOW}[INFO]${NC} %s\n" "$message"
+    append_log "[INFO] $message"
+}
+
+# Prints success messages
+print_success() {
+    local message="${1}"
+    printf "${GREEN}[SUCCESS]${NC} %s\n" "$message"
+    append_log "[SUCCESS] $message"
+}
+
+# Prints error messages
+print_error() {
+    local message="${1}"
+    printf "${RED}[ERROR]${NC} %s\n" "$message"
+    append_log "[ERROR] $message"
+}
+
+# Creates log directories
+create_log_dirs() {
+    print_info "Creating log directories"
+    mkdir -p "$INFO_DIR" || {
+        print_error "Failed to create log directory"
+        exit 1
+    }
+}
+
+# Kills the current running process $port
+kill_existing() {
+    local pid
+    pid=$(ss -lptn "sport = :$PORT" | grep -oP '(?&lt;=pid=)\d+')
+    if [ -n "$pid" ]; then
+        print_info "Killing existing process with PID $pid"
+        kill -9 "$pid" || {
+            print_error "Failed to kill process with PID $pid"
+            exit 1
+        }
+    else
+        print_info "No existing process found on port $PORT"
+    fi
+}
+
+# Builds the website
+website_build() {
+    print_info "Installing required modules"
+    pnpm install 2&gt;&amp;1 | tee -a "$LOG_FILE" || {
+        print_error "Failed to install modules"
+        return 1
+    }
+
+    print_info "Building website"
+    pnpm run build 2&gt;&amp;1 | tee -a "$LOG_FILE"
+    if [ $? -eq 0 ]; then
+        print_success "Build successful, starting website"
+        kill_existing
+        nohup pnpm start &gt;&gt;"$SERVER_LOG" 2&gt;&amp;1 &amp;
+        print_success "Website is live and running"
+    else
+        print_error "Build failed"
+        return 1
+    fi
+}
+
+# Main function
+main() {
+    cd "$REPO_DIR" || {
+        print_error "Unable to change directory to $REPO_DIR"
+        exit 1
+    }
+
+    print_info "Pulling latest changes from the main branch"
+    git pull origin main --rebase || {
+        print_error "Failed to pull latest changes from main branch"
+        exit 1
+    }
+
+    create_log_dirs
+    website_build
+
+    if [ $? -ne 0 ]; then
+        print_info "Build failed, attempting to build from previous commit"
+        print_info "Reverting to previous commit"
+        git checkout HEAD~ || {
+            print_error "Failed to revert to previous commit"
+            exit 1
+        }
+        website_build || {
+            print_error "Build from previous commit failed"
+            exit 1
+        }
+    fi
+}
+
+# Execute
+main
+
+</code></pre>
+<p><img src="https://null.pwnwriter.xyz/sharp-pangolin.png" alt="" /></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../server/ssl_certificate.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../bash/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../server/ssl_certificate.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../bash/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

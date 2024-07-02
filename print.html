@@ -1,0 +1,984 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>pwnwriter&#x27;s notes</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./theme/catppuccin.css">
+        <link rel="stylesheet" href="./theme/catppuccin-admonish.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="about.html">About</a></li><li class="chapter-item expanded affix "><li class="part-title">Rustlang</li><li class="chapter-item expanded "><a href="rust/basics.html"><strong aria-hidden="true">1.</strong> Basics</a></li><li class="chapter-item expanded "><a href="rust/iterators.html"><strong aria-hidden="true">2.</strong> Iterators</a></li><li class="chapter-item expanded "><a href="rust/stdin.html"><strong aria-hidden="true">3.</strong> Stdin via cursor</a></li><li class="chapter-item expanded affix "><li class="part-title">Nix os/lang</li><li class="chapter-item expanded "><a href="nix/home-manager.html"><strong aria-hidden="true">4.</strong> home-manager</a></li><li class="chapter-item expanded "><a href="nix/nixos-hetzner-vps.html"><strong aria-hidden="true">5.</strong> nixos on hetzner vps</a></li><li class="chapter-item expanded affix "><li class="part-title">Linux server</li><li class="chapter-item expanded "><a href="server/google-authentication.html"><strong aria-hidden="true">6.</strong> Google authentication on server</a></li><li class="chapter-item expanded "><a href="server/ssl_certificate.html"><strong aria-hidden="true">7.</strong> SSL on a domain using nginx and certbot</a></li><li class="chapter-item expanded "><a href="server/jenkins-alternative-with-github.html"><strong aria-hidden="true">8.</strong> Using github ci,cd instead of jenkins</a></li><li class="chapter-item expanded affix "><li class="part-title">Shell scripting</li><li class="chapter-item expanded "><a href="bash/index.html"><strong aria-hidden="true">9.</strong> Mounting a dir on Ram</a></li><li class="chapter-item expanded "><a href="bash/ssh_gen.html"><strong aria-hidden="true">10.</strong> Generate ssh keys</a></li><li class="chapter-item expanded "><a href="bash/enumeration.html"><strong aria-hidden="true">11.</strong> Enumeration on *nix</a></li><li class="chapter-item expanded "><a href="bash/random.html"><strong aria-hidden="true">12.</strong> Random scripts </a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mocha">Mocha</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="macchiato">Macchiato</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="frappe">Frappé</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="latte">Latte</button></li>
+                        
+                            <!-- 
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            -->
+
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">pwnwriter&#x27;s notes</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="about"><a class="header" href="#about">About</a></h2>
+<p>Hello, I'm <a href="https://github.com/pwnwriter">pwnwriter</a>, and this is a frontend for my compilation of
+random notes gathered throughout the year. Here, you'll discover a diverse
+array of notes spanning topics such as <em>Cybersecurity, shell scripting, rust,</em>
+and much more, all available under the <a href="https://opensource.org/license/mit">MIT</a> license. These notes are
+straightforward, nothing but raw insights into various subjects.</p>
+<h3 id="links"><a class="header" href="#links">Links</a></h3>
+<p>Website : <a href="https://pwnwriter.xyz">pwnwriter.xyz</a></p>
+<p>Github : <a href="https://github.com/pwnwriter">@pwnwriter</a></p>
+<p>Twitter : <a href="https://twitter.com/pwnwriter">@pwnwriter</a></p>
+<p>Ko-fi : <a href="https://ko-fi.com/pwnwriter">@pwnwriter</a></p>
+<p><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" alt="cat" /></p>
+<!-- Links -->
+<div style="break-before: page; page-break-before: always;"></div><h2 id="links-1"><a class="header" href="#links-1">Links</a></h2>
+<ul>
+<li>Package manager : <a href="https://github.com/rust-lang/cargo">Cargo</a></li>
+<li>Toolchain installer : <a href="https://rustup.rs">Rustup</a></li>
+<li>Book : <a href="https://github.com/rust-lang/book">Thebook</a></li>
+<li>Linter: <a href="https://github.com/rust-lang/clippy">Clippy</a></li>
+</ul>
+<h3 id="allow-rust-analyzer-to-run-on-single-file-for-completion"><a class="header" href="#allow-rust-analyzer-to-run-on-single-file-for-completion">Allow rust-analyzer to run on single file for completion</a></h3>
+<p>Create a <code>rust-project.json</code> in your <code>directory</code></p>
+<pre><code class="language-json">{
+    "sysroot_src": "path/to/the/library",
+    "crates": [
+        {
+            "root_module": "main.rs",
+            "edition": "2021",
+            "deps": []
+        }
+    ]
+}
+</code></pre>
+<p>Here, i manually defined <code>rustup</code> home. By default it's <code>~/.rustup</code></p>
+<pre><code class="language-bash">export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
+</code></pre>
+<h3 id="define-crates-deps-inside-a-single-file"><a class="header" href="#define-crates-deps-inside-a-single-file">Define <code>crates</code> deps inside a single file.</a></h3>
+<pre><pre class="playground"><code class="language-rust">//! ```cargo
+//! [dependencies]
+//! clap = { version = "4.2", features = ["derive"] }
+//! ```
+
+extern crate clap;
+
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(version)]
+struct Args {
+    #[arg(short, long, default_value = "PwnWriter")]
+    pub name: String,
+}
+
+fn main() {
+    let args = Args::parse();
+    println!("{}", args.name);
+}</code></pre></pre>
+<!-- Links-->
+<div style="break-before: page; page-break-before: always;"></div><h1 id="iterators"><a class="header" href="#iterators">Iterators</a></h1>
+<pre><pre class="playground"><code class="language-rust">extern crate anyhow;
+
+use anyhow::Result;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ports = vec![1, 3, 4];
+
+    let urls = vec![
+        "https://github.com",
+        "https://metislinux.org",
+        "https://kisslinux.org",
+    ];
+
+    let urls_with_ports: Vec&lt;String&gt; = urls
+        .iter()
+        .zip(&amp;ports)
+        .map(|(url, &amp;port)| format!("{}:{}", url, port))
+        .collect();
+
+    for url in urls_with_ports {
+        println!("{}", url);
+    }
+
+    Ok(())
+}</code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="standard-input-using-cursor"><a class="header" href="#standard-input-using-cursor">Standard Input Using Cursor</a></h2>
+<p>Sometimes, you may not have access to <code>concatenate</code> a file and pipe it into your
+code for testing. In such situations, you can utilize the <code>Cursor</code> module.</p>
+<pre><pre class="playground"><code class="language-rust">use std::io::{Cursor, BufRead, BufReader};
+
+fn main() {
+    let cursor = Cursor::new("Hey\npwned\n".to_string());
+    let buffered_reader = BufReader::new(cursor);
+    for line in buffered_reader.lines() {
+        println!("{}", line.unwrap());
+    }
+}</code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="how-to-install-nix-on-any-linux-vps"><a class="header" href="#how-to-install-nix-on-any-linux-vps">How to Install Nix on any Linux VPS</a></h2>
+<p>Nix is a versatile package manager, programming language, and even a complete
+Linux distribution. It stands out with its focus on reproducibility and
+declarative configuration.</p>
+<h4 id="download-and-run-the-installer"><a class="header" href="#download-and-run-the-installer">Download and Run the Installer</a></h4>
+<p>We'll be using determinate system's nix installer</p>
+<pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- --install
+</code></pre>
+<img width="1150" alt="Screenshot 2024-06-26 at 12 53 49" src="https://github.com/pwnwriter/pwnotes/assets/90331517/052d3936-e718-4dfd-9ecf-4d916c4388f7">
+<p>You should have nix installed by now.</p>
+<p><code>nix --version</code></p>
+<img width="370" alt="Screenshot 2024-06-26 at 12 57 01" src="https://github.com/pwnwriter/pwnotes/assets/90331517/42c43f44-9032-41e6-80f9-d159f904d428">
+<h4 id="lets-install-a-pkg-tmux"><a class="header" href="#lets-install-a-pkg-tmux">Let's install a pkg <code>tmux</code></a></h4>
+<p><code>nix profile install nixpkgs#tmux</code></p>
+<img width="429" alt="Screenshot 2024-06-26 at 12 58 46" src="https://github.com/pwnwriter/pwnotes/assets/90331517/f54cced6-7dd5-4df5-b898-2de5d8585bfe">
+<h4 id="we-can-even-install-package-for-temp-shell"><a class="header" href="#we-can-even-install-package-for-temp-shell">we can even install package for temp shell</a></h4>
+<p><code>nix-shell -p git</code></p>
+<img width="802" alt="Screenshot 2024-06-26 at 13 08 29" src="https://github.com/pwnwriter/pwnotes/assets/90331517/e79584f3-a945-4024-a362-3c7c0cce85bf">
+<img width="778" alt="Screenshot 2024-06-26 at 13 08 37" src="https://github.com/pwnwriter/pwnotes/assets/90331517/59405340-ed5d-47a9-9ca9-5239b3546af8">
+<h4 id="installing-home-manager"><a class="header" href="#installing-home-manager">Installing Home Manager</a></h4>
+<p>Finally, we'll use Home Manager, a tool designed to manage the user environment (e.g., dotfiles) in a declarative way using Nix. We'll start by adding the minimal configuration needed to get Home Manager up and running.</p>
+<p>First, create a dotfiles directory if you don't have one already (the name of the directory does not matter). Use git init (or your favorite GUI) to initialize a Git repository in the folder. Add the following two files:</p>
+<p><code>mkdir dotfiles; cd dotfiles; git init</code></p>
+<img width="711" alt="Screenshot 2024-06-26 at 13 13 40" src="https://github.com/pwnwriter/pwnotes/assets/90331517/aea54276-965b-40b7-b353-80b30a380e37">
+<pre><code class="language-nix">{
+  description = "Your description here";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { nixpkgs, home-manager, ... }: {
+    homeConfigurations = {
+      &lt;Yourname&gt; = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [
+          ./modules
+          {
+            home.username = "username";
+            home.stateVersion = "23.11";
+            home.homeDirectory = "/home/username";
+          }
+        ];
+      };
+
+    };
+  };
+}
+</code></pre>
+<p>Place the above file as <code>flake.nix</code>.</p>
+<p>Now the directory tree should look like this</p>
+<img width="433" alt="Screenshot 2024-06-26 at 13 18 31" src="https://github.com/pwnwriter/pwnotes/assets/90331517/88e8e502-82fe-4411-92be-603ecdb9d30e">
+<p>This flake initiales all the modules from <code>modules</code> directory.</p>
+<p>For example to configure <code>git</code>, it goes something like this</p>
+<pre><code class="language-nix">{ pkgs, ... }:
+let
+  name = "username";
+  email = "main";
+in
+{
+  programs.git = {
+    enable = true;
+    userName = name;
+    userEmail = email;
+  };
+}
+</code></pre>
+<p>Now we'll need to source it inside modules,</p>
+<p>Like <code>lua</code>'s init.lua' we have <code>default.nix</code> in <code>nix</code>.</p>
+<p>We'll now import out <code>git.nix</code> using <code>modules/default.nix</code> file and it goes something like this.</p>
+<pre><code class="language-nix">{ config, ... }:
+
+let
+  modules = [
+    ./git.nix
+  ];
+in
+{
+  imports = modules;
+
+  xdg.dataHome = "${config.home.homeDirectory}/.local/share";
+  programs.home-manager.enable = true;
+}
+</code></pre>
+<p>We can now build our config using following.</p>
+<pre><code class="language-bash">nix run github:nix-community/home-manager -- switch --flake .#your_name
+</code></pre>
+<img width="756" alt="Screenshot 2024-06-26 at 13 24 51" src="https://github.com/pwnwriter/pwnotes/assets/90331517/65c2aaa3-865c-452a-af34-8094d9b1aee2">
+<p>It should generate your config like below.</p>
+<img width="1157" alt="Screenshot 2024-06-26 at 13 26 58" src="https://github.com/pwnwriter/pwnotes/assets/90331517/9355a91e-f57d-47be-87b7-cdffa5d0be4f">
+<div style="break-before: page; page-break-before: always;"></div><h3 id="installing-nixos-on-a-hetzner-vps"><a class="header" href="#installing-nixos-on-a-hetzner-vps">Installing NixOS on a Hetzner VPS</a></h3>
+<p>In this guide, I will explain how to install NixOS on a Hetzner VPS from a local machine using flakes and Nix itself.</p>
+<h4 id="requirements"><a class="header" href="#requirements">Requirements</a></h4>
+<ul>
+<li>A linux os with the latest systemd, I'm using <code>ubuntu24.04</code></li>
+<li>A machine with Nix already installed (I have written a blog post on this topic).</li>
+<li>Root privileges to run commands.</li>
+</ul>
+<p>That's it!</p>
+<p>We will use <a href="https://github.com/nix-community/nixos-anywhere"><code>nixos-anywhere</code></a> and <a href="https://github.com/nix-community/disko"><code>disko</code></a> to install Nix and create declarable partitions. First, we'll import them into our <code>flake</code>. The directory structure should look like this:</p>
+<img width="212" alt="Screenshot 2024-07-02 at 12 38 41" src="https://github.com/pwnwriter/pwnotes/assets/90331517/f5c53fd0-428c-4196-b30a-b65f6f6e1a72">
+<p>You'll want to change <code>wood</code> to something else, i'm just imagining the host name for myvps as <code>wolf</code>.</p>
+<ul>
+<li><code>flake.nix</code></li>
+</ul>
+<pre><code class="language-nix">  {
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = { nixpkgs, disko, ... }: {
+    nixosConfigurations.wolf = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          disko.nixosModules.disko
+          ./configuration.nix
+          ./disk-config.nix
+        ];
+      };
+  };
+}
+</code></pre>
+<p>We'll import our <code>configuration.nix</code> and <code>disk-config.nix</code> inside our flake. Add your public ssh keys in <code>authorized_keys</code> for accessing the server after installation.</p>
+<ul>
+<li><code>configuration.nix</code></li>
+</ul>
+<pre><code class="language-nix">{ modulesPath, config, lib, pkgs, ... }: {
+  imports = [
+    (modulesPath + "/installer/scan/not-detected.nix")
+    (modulesPath + "/profiles/qemu-guest.nix")
+    ./disk-config.nix
+  ];
+  boot.loader.grub = {
+    efiSupport = true;
+    efiInstallAsRemovable = true;
+  };
+  services.openssh.enable = true;
+
+  environment.systemPackages = map lib.lowPrio [
+    pkgs.curl # define your more packages here
+    pkgs.gitMinimal
+  ];
+
+  users.users.root.openssh.authorizedKeys.keys = [
+    "You're public ssh key"
+  ];
+
+  system.stateVersion = "23.11";
+}
+</code></pre>
+<p>Now regarding the disk, I'm using the default disk partitions required and recommended by <code>disko</code>, If you happen to change you can. This disk partions are for
+bios compatible gpt partition.</p>
+<ul>
+<li><code>disk-config.nix</code></li>
+</ul>
+<pre><code class="language-nix"># Example to create a bios compatible gpt partition
+{ lib, ... }:
+{
+  disko.devices = {
+    disk.disk1 = {
+      device = lib.mkDefault "/dev/sda";
+      type = "disk";
+      content = {
+        type = "gpt";
+        partitions = {
+          boot = {
+            name = "boot";
+            size = "1M";
+            type = "EF02";
+          };
+          esp = {
+            name = "ESP";
+            size = "500M";
+            type = "EF00";
+            content = {
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+            };
+          };
+          root = {
+            name = "root";
+            size = "100%";
+            content = {
+              type = "lvm_pv";
+              vg = "pool";
+            };
+          };
+        };
+      };
+    };
+    lvm_vg = {
+      pool = {
+        type = "lvm_vg";
+        lvs = {
+          root = {
+            size = "100%FREE";
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/";
+              mountOptions = [
+                "defaults"
+              ];
+            };
+          };
+        };
+      };
+    };
+  };
+}
+</code></pre>
+<p>Now, we'll have to run our flake to install nix on the vps.</p>
+<pre><code> nix run github:nix-community/nixos-anywhere -- --flake .#wolf root@&lt;server-ip&gt;
+</code></pre>
+<img width="1059" alt="Screenshot 2024-07-02 at 12 51 42" src="https://github.com/pwnwriter/pwnotes/assets/90331517/1189cb4f-8df2-4dc2-9ce4-9cdc9054af06">
+<h5 id="itll-ask-for-password-to-install-the-base-of-nix"><a class="header" href="#itll-ask-for-password-to-install-the-base-of-nix">It'll ask for password to install the base of nix.</a></h5>
+<img width="1130" alt="Screenshot 2024-07-02 at 12 55 31" src="https://github.com/pwnwriter/pwnotes/assets/90331517/d188d41e-56b8-4e41-901e-fcf23f9e7f26">
+<p>And now, you should be able to log-in into the vps using the <code>ssh keys</code> , regardless of the password being empty.</p>
+<img width="1001" alt="Screenshot 2024-07-02 at 12 53 43" src="https://github.com/pwnwriter/pwnotes/assets/90331517/077585c3-65e2-4a6a-a3cc-b1a26ca32ff3">
+<!---links---->
+<div style="break-before: page; page-break-before: always;"></div><h1 id="setting-up-google-authentication-for-ssh-on-a-linux-server"><a class="header" href="#setting-up-google-authentication-for-ssh-on-a-linux-server">Setting Up Google Authentication for SSH on a Linux Server</a></h1>
+<h2 id="step-1-install-google-authenticator"><a class="header" href="#step-1-install-google-authenticator">Step 1: Install Google Authenticator</a></h2>
+<ol>
+<li>
+<p><strong>Update your package list:</strong></p>
+<pre><code class="language-bash">sudo apt update
+</code></pre>
+</li>
+<li>
+<p><strong>Install the Google Authenticator package:</strong></p>
+<pre><code class="language-bash">sudo apt install libpam-google-authenticator
+</code></pre>
+</li>
+</ol>
+<h2 id="step-2-configure-google-authenticator-for-your-user"><a class="header" href="#step-2-configure-google-authenticator-for-your-user">Step 2: Configure Google Authenticator for Your User</a></h2>
+<ol>
+<li>
+<p><strong>Run the Google Authenticator setup:</strong></p>
+<pre><code class="language-bash">google-authenticator
+</code></pre>
+</li>
+<li>
+<p><strong>Answer the prompts:</strong></p>
+<ul>
+<li><strong>"Do you want authentication tokens to be time-based (y/n)?"</strong>: Type <code>y</code> and press Enter.</li>
+<li><strong>Backup Codes</strong>: Write down the emergency scratch codes provided and store them in a safe place.</li>
+<li><strong>"Do you want me to update your "/home/username/.google_authenticator" file?"</strong>: Type <code>y</code> and press Enter.</li>
+<li><strong>"Do you want to disallow multiple uses of the same authentication token? (y/n)"</strong>: Type <code>y</code> and press Enter.</li>
+<li><strong>"By default, tokens are good for 30 seconds. Do you want to increase the time skew window to 4 minutes? (y/n)"</strong>: Type <code>n</code> and press Enter.</li>
+<li><strong>"Do you want to enable rate-limiting protection? (y/n)"</strong>: Type <code>y</code> and press Enter.</li>
+</ul>
+</li>
+<li>
+<p><strong>Scan the QR code</strong>: Use the Google Authenticator app on your phone to scan the QR code displayed on your terminal.</p>
+</li>
+</ol>
+<h2 id="step-3-configure-ssh-to-use-google-authenticator"><a class="header" href="#step-3-configure-ssh-to-use-google-authenticator">Step 3: Configure SSH to Use Google Authenticator</a></h2>
+<ol>
+<li>
+<p><strong>Edit the SSH configuration file:</strong></p>
+<pre><code class="language-bash">sudo vim /etc/pam.d/sshd
+</code></pre>
+</li>
+<li>
+<p><strong>Add the following line at the end of the file:</strong></p>
+<pre><code class="language-plaintext">auth required pam_google_authenticator.so nullok
+</code></pre>
+</li>
+<li>
+<p><strong>Edit the SSH daemon configuration file:</strong></p>
+<pre><code class="language-bash">sudo vim /etc/ssh/sshd_config
+</code></pre>
+</li>
+<li>
+<p><strong>Find and modify the following lines:</strong></p>
+<ul>
+<li>
+<p>Ensure <code>ChallengeResponseAuthentication</code> is set to <code>yes</code>:</p>
+<pre><code class="language-plaintext">ChallengeResponseAuthentication yes
+</code></pre>
+</li>
+<li>
+<p>Ensure <code>UsePAM</code> is set to <code>yes</code>:</p>
+<pre><code class="language-plaintext">UsePAM yes
+</code></pre>
+</li>
+<li>
+<p>(Optional) If you want to require both Google Authenticator and your password, add or modify the line:</p>
+<pre><code class="language-plaintext">AuthenticationMethods publickey,password publickey,keyboard-interactive
+</code></pre>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="step-4-restart-the-ssh-service"><a class="header" href="#step-4-restart-the-ssh-service">Step 4: Restart the SSH Service</a></h2>
+<ol>
+<li>
+<p><strong>Restart the SSH service to apply the changes:</strong></p>
+<pre><code class="language-bash">sudo systemctl restart sshd
+</code></pre>
+</li>
+</ol>
+<h2 id="step-5-test-the-configuration"><a class="header" href="#step-5-test-the-configuration">Step 5: Test the Configuration</a></h2>
+<ol>
+<li>
+<p><strong>Open a new SSH session to your server.</strong></p>
+</li>
+<li>
+<p><strong>Log in with your username and password.</strong></p>
+</li>
+<li>
+<p><strong>When prompted, enter the verification code from your Google Authenticator app.</strong></p>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="installing-an-ssl-certificate-on-a-domain-using-certbot-manually"><a class="header" href="#installing-an-ssl-certificate-on-a-domain-using-certbot-manually">Installing an SSL Certificate on a Domain Using Certbot manually</a></h2>
+<h3 id="1-install-certbot"><a class="header" href="#1-install-certbot">1. Install Certbot</a></h3>
+<p>If Certbot is not already installed, you can install it using the following commands:</p>
+<p><strong>For Debian/Ubuntu:</strong></p>
+<pre><code class="language-sh">sudo apt update
+sudo apt install certbot
+</code></pre>
+<h3 id="2-obtain-the-ssl-certificate"><a class="header" href="#2-obtain-the-ssl-certificate">2. Obtain the SSL Certificate</a></h3>
+<p><code>export DOMAIN=&lt;your domain&gt;</code></p>
+<pre><code class="language-bash">certbot certonly --manual -d *.$DOMAIN -d $DOMAIN --agree-tos --manual-public-ip-logging-ok --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory --register-unsafely-without-email --rsa-key-size 4096
+
+</code></pre>
+<h3 id="3-certbot-will-provide-instructions-on-how-to-create-a-dns-txt-record-to-verify-your-domain-ownership-the-output-will-look-something-like-this"><a class="header" href="#3-certbot-will-provide-instructions-on-how-to-create-a-dns-txt-record-to-verify-your-domain-ownership-the-output-will-look-something-like-this">3. Certbot will provide instructions on how to create a DNS TXT record to verify your domain ownership. The output will look something like this:</a></h3>
+<pre><code class="language-bash">Please deploy a DNS TXT record under the name
+_acme-challenge.example.com with the following value:
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+Before continuing, verify the record is deployed.
+</code></pre>
+<p>After creating the DNS TXT record, wait for the changes to propagate. This can
+take a few minutes. You can verify the DNS record by using a tool like
+<a href="https://dnschecker.org"><code>DNSChecker</code></a>to ensure it has been properly set.</p>
+<h3 id="4-setup-ssl"><a class="header" href="#4-setup-ssl">4. Setup ssl</a></h3>
+<p>Your new SSL certificates will be stored in the /etc/letsencrypt/live/$DOMAIN/ directory. You will find the following files:</p>
+<pre><code class="language-bash">server {
+    listen 443 ssl;
+    server_name example.com;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    location / {
+        root /var/www/html;
+        index index.html index.htm;
+    }
+}
+
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="migrating-from-jenkins-to-github-actions-for-cicd"><a class="header" href="#migrating-from-jenkins-to-github-actions-for-cicd">Migrating from Jenkins to GitHub Actions for CI/CD</a></h3>
+<h4 id="introduction"><a class="header" href="#introduction">Introduction</a></h4>
+<p>Jenkins has been a go-to tool for CI/CD for many developers. However, it can be heavy and complex for smaller projects or when simplicity is desired. In this blog post, I will walk you through my experience migrating from Jenkins to GitHub Actions for CI/CD, highlighting the reasons for the switch and the steps taken to implement a new workflow.</p>
+<h4 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h4>
+<p>Before you start the migration, ensure you have the following:</p>
+<ul>
+<li>A GitHub repository for your project.</li>
+<li>Access to your VPS (Virtual Private Server) where the application will be deployed.</li>
+<li>SSH keys generated and configured for your VPS.</li>
+<li>GitHub secrets configured for storing sensitive information like SSH keys.</li>
+</ul>
+<h4 id="why-migrate-from-jenkins-to-github-actions"><a class="header" href="#why-migrate-from-jenkins-to-github-actions">Why Migrate from Jenkins to GitHub Actions?</a></h4>
+<ul>
+<li><strong>Complexity and Maintenance</strong>: Jenkins requires managing a separate server and handling its updates and maintenance, which can be time-consuming.</li>
+<li><strong>Performance</strong>: Jenkins can be resource-intensive, which might be overkill for smaller projects.</li>
+<li><strong>Integration</strong>: GitHub Actions provides seamless integration with GitHub repositories, making it easier to manage workflows within the same platform.</li>
+<li><strong>Simplicity</strong>: GitHub Actions offers a straightforward YAML configuration, which is easier to read and manage compared to Jenkins' XML-based configurations.</li>
+</ul>
+<p>being small but absolute working workaround works as follows.</p>
+<ul>
+<li>This workflow run on push on <code>main</code> branch and deploys in github and then only in vps.</li>
+</ul>
+<p><img src="https://null.pwnwriter.xyz/closing-dinosaur.png" alt="" /></p>
+<p>In this guide, we'll be using <a href="https://github.com/appleboy/ssh-action">appleboy/ssh-action</a>, which lets you ssh into the server and run particular script.</p>
+<p>For this workflow, we'll first need to have our ssh keys in our vps and the user must be able to login via ssh.</p>
+<p>You'll want to generate ssh keys and then put your public keys in <code>authorized_keys</code>, which simply lets the current user ssh into the sever.</p>
+<h4 id="setting-up-the-github-actions-workflow"><a class="header" href="#setting-up-the-github-actions-workflow">Setting Up the GitHub Actions Workflow</a></h4>
+<p>After generating ssh keys, put your:</p>
+<ul>
+<li>PRIVATE_KEY, USERNAME, and HOST in your repository's secrets variables.</li>
+</ul>
+<p>Here’s the GitHub Actions workflow that I set up to build and deploy my web application to a VPS:</p>
+<pre><code class="language-yaml">name: Test the web app and deploy on vps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Nix package manager
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Node.js and pnpm
+        run: |
+          nix profile install nixpkgs#nodejs_22
+          nix profile install nixpkgs#nodePackages_latest.pnpm
+
+      - name: Build website
+        run: |
+          pnpm install
+          pnpm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy over the vps
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/source_dir/
+            bash ./.github/deployer.sh
+</code></pre>
+<p>A graph of this workflow
+<img src="https://null.pwnwriter.xyz/unified-bull.png" alt="" /></p>
+<h3 id="the-deployer-script"><a class="header" href="#the-deployer-script">The deployer script</a></h3>
+<p>The following script is ran by github actions on github build success</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+# Written by @pwnwriter
+# This script builds the Nest Nepal website. If the build fails, it attempts to build from the previous commit.
+
+### Variables
+
+USER="ubuntu"
+REPO_DIR="/home/${USER}/repo_name"
+INFO_DIR="/home/${USER}/repo_name-log"
+LOG_FILE="$INFO_DIR/build.log"
+SERVER_LOG="$INFO_DIR/server.log"
+PORT=3002
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# -------------------- Helper functions ---------
+
+# Appends log messages
+append_log() {
+    printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$LOG_FILE"
+}
+
+# Prints informational messages
+print_info() {
+    local message="${1}"
+    printf "${YELLOW}[INFO]${NC} %s\n" "$message"
+    append_log "[INFO] $message"
+}
+
+# Prints success messages
+print_success() {
+    local message="${1}"
+    printf "${GREEN}[SUCCESS]${NC} %s\n" "$message"
+    append_log "[SUCCESS] $message"
+}
+
+# Prints error messages
+print_error() {
+    local message="${1}"
+    printf "${RED}[ERROR]${NC} %s\n" "$message"
+    append_log "[ERROR] $message"
+}
+
+# Creates log directories
+create_log_dirs() {
+    print_info "Creating log directories"
+    mkdir -p "$INFO_DIR" || {
+        print_error "Failed to create log directory"
+        exit 1
+    }
+}
+
+# Kills the current running process $port
+kill_existing() {
+    local pid
+    pid=$(ss -lptn "sport = :$PORT" | grep -oP '(?&lt;=pid=)\d+')
+    if [ -n "$pid" ]; then
+        print_info "Killing existing process with PID $pid"
+        kill -9 "$pid" || {
+            print_error "Failed to kill process with PID $pid"
+            exit 1
+        }
+    else
+        print_info "No existing process found on port $PORT"
+    fi
+}
+
+# Builds the website
+website_build() {
+    print_info "Installing required modules"
+    pnpm install 2&gt;&amp;1 | tee -a "$LOG_FILE" || {
+        print_error "Failed to install modules"
+        return 1
+    }
+
+    print_info "Building website"
+    pnpm run build 2&gt;&amp;1 | tee -a "$LOG_FILE"
+    if [ $? -eq 0 ]; then
+        print_success "Build successful, starting website"
+        kill_existing
+        nohup pnpm start &gt;&gt;"$SERVER_LOG" 2&gt;&amp;1 &amp;
+        print_success "Website is live and running"
+    else
+        print_error "Build failed"
+        return 1
+    fi
+}
+
+# Main function
+main() {
+    cd "$REPO_DIR" || {
+        print_error "Unable to change directory to $REPO_DIR"
+        exit 1
+    }
+
+    print_info "Pulling latest changes from the main branch"
+    git pull origin main --rebase || {
+        print_error "Failed to pull latest changes from main branch"
+        exit 1
+    }
+
+    create_log_dirs
+    website_build
+
+    if [ $? -ne 0 ]; then
+        print_info "Build failed, attempting to build from previous commit"
+        print_info "Reverting to previous commit"
+        git checkout HEAD~ || {
+            print_error "Failed to revert to previous commit"
+            exit 1
+        }
+        website_build || {
+            print_error "Build from previous commit failed"
+            exit 1
+        }
+    fi
+}
+
+# Execute
+main
+
+</code></pre>
+<p><img src="https://null.pwnwriter.xyz/sharp-pangolin.png" alt="" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="mount-a-directory-on-ram"><a class="header" href="#mount-a-directory-on-ram">Mount a directory on RAM.</a></h2>
+<p>Mount a directory completely on RAM. Everything will be wiped out on reboot.</p>
+<pre><code class="language-bash">mount -o size=&lt;x&gt;G -t tmpfs none &lt;dir_name&gt;
+</code></pre>
+<h3 id="explanation"><a class="header" href="#explanation">Explanation</a></h3>
+<p><code>size=&lt;x&gt;G</code>: Sets the directory size in RAM (replace <x> with GB, e.g., size=4G for a 4GB virtual directory).</p>
+<p><code>-t tmpfs</code>: Specifies tmpfs as the RAM-based filesystem.</p>
+<p><code>none</code>: Represents the virtual directory in RAM, not tied to any physical device.</p>
+<p><code>&lt;dir_name&gt;</code>: Path to the directory where you'll access the RAM directory.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="create-ssh-keys"><a class="header" href="#create-ssh-keys">Create SSH Keys</a></h2>
+<pre><code class="language-bash">ssh-keygen -t rsa -b 4096 -C "example@example.com"
+</code></pre>
+<p>Generate a new SSH key using RSA encryption with a bit size of 4096 and attach an email address as a label.</p>
+<h3 id="start-ssh-agent"><a class="header" href="#start-ssh-agent">Start SSH Agent</a></h3>
+<pre><code class="language-bash">eval $(ssh-agent -s)
+</code></pre>
+<p>initialize ssh keys.</p>
+<h3 id="add-generated-key-to-ssh-agent"><a class="header" href="#add-generated-key-to-ssh-agent">Add Generated Key to SSH Agent</a></h3>
+<pre><code class="language-bash">ssh-add "~/.ssh/ssh_file_name"
+</code></pre>
+<p>Add newly generated SSH key to the SSH agent.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="some-useful-commands-for-enumerating-nix-os"><a class="header" href="#some-useful-commands-for-enumerating-nix-os">Some useful commands for enumerating *nix os</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>uname -a</code></td><td>Print all available system information</td></tr>
+<tr><td><code>uname -r</code></td><td>Kernel release</td></tr>
+<tr><td><code>uname -n</code></td><td>System hostname</td></tr>
+<tr><td><code>hostname</code></td><td>As above</td></tr>
+<tr><td><code>uname -m</code></td><td>Linux kernel architecture (32 or 64 bit)</td></tr>
+<tr><td><code>cat /proc/version</code></td><td>Kernel information</td></tr>
+<tr><td><code>cat /etc/*-release</code></td><td>Distribution information</td></tr>
+<tr><td><code>cat /etc/issue</code></td><td>As above</td></tr>
+<tr><td><code>cat /proc/cpuinfo</code></td><td>CPU information</td></tr>
+<tr><td><code>df -a</code></td><td>File system information</td></tr>
+</tbody></table>
+</div>
+<p><strong>Users &amp; Groups:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>cat /etc/passwd</code></td><td>List all users on the system</td></tr>
+<tr><td><code>cat /etc/group</code></td><td>List all groups on the system</td></tr>
+<tr><td><code>cat /etc/shadow</code></td><td>Show user hashes – Privileged command</td></tr>
+<tr><td><code>grep -v -E "^#" /etc/passwd | awk -F: '$3 == 0 { print $1}</code></td><td>List all super user accounts</td></tr>
+<tr><td><code>finger</code></td><td>Users currently logged in</td></tr>
+<tr><td><code>pinky</code></td><td>As above</td></tr>
+<tr><td><code>users</code></td><td>As above</td></tr>
+<tr><td><code>who -a</code></td><td>As above</td></tr>
+<tr><td><code>w</code></td><td>Who is currently logged in and what they’re doing</td></tr>
+<tr><td><code>last</code></td><td>Listing of last logged on users</td></tr>
+<tr><td><code>lastlog</code></td><td>Information on when all users last logged in</td></tr>
+<tr><td><code>lastlog –u %username%</code></td><td>Information on when the specified user last logged in</td></tr>
+</tbody></table>
+</div>
+<p><strong>User &amp; Privilege Information:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>whoami</code></td><td>Current username</td></tr>
+<tr><td><code>id</code></td><td>Current user information</td></tr>
+<tr><td><code>cat /etc/sudoers</code></td><td>Who’s allowed to do what as root – Privileged command</td></tr>
+<tr><td><code>sudo -l</code></td><td>Can the current user perform anything as root</td></tr>
+</tbody></table>
+</div>
+<p><strong>Environmental Information:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>env</code></td><td>Display environmental variables</td></tr>
+<tr><td><code>set</code></td><td>As above</td></tr>
+<tr><td><code>echo $PATH</code></td><td>Path information</td></tr>
+<tr><td><code>history</code></td><td>Displays command history of current user</td></tr>
+<tr><td><code>pwd</code></td><td>Print working directory, i.e. ‘where am I’</td></tr>
+<tr><td><code>cat /etc/profile</code></td><td>Display default system variables</td></tr>
+</tbody></table>
+</div>
+<p><strong>Interesting Files:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>find / -perm -4000 -type f 2&gt;/dev/null</code></td><td>Find SUID files</td></tr>
+<tr><td><code>find / -uid 0 -perm -4000 -type f 2&gt;/dev/null</code></td><td>Find SUID files owned by root</td></tr>
+</tbody></table>
+</div>
+<p><strong>Common Shell Escape Sequences:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Commands</th><th>Explanation</th></tr></thead><tbody>
+<tr><td><code>:!bash</code></td><td>vi, vim</td></tr>
+<tr><td><code>:set shell=/bin/bash :shell</code></td><td>vi, vim</td></tr>
+<tr><td><code>!bash</code></td><td>man, more, less</td></tr>
+<tr><td><code>find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;</code></td><td>find</td></tr>
+<tr><td><code>awk 'BEGIN {system("/bin/bash")}'</code></td><td>awk</td></tr>
+<tr><td><code>--interactive</code></td><td>nmap</td></tr>
+<tr><td><code>perl -e 'exec "/bin/bash";'</code></td><td>Perl</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h2 id="random-scripts"><a class="header" href="#random-scripts">Random scripts</a></h2>
+<h4 id="record-with-internal-sound-using-wf-recorder"><a class="header" href="#record-with-internal-sound-using-wf-recorder">Record with internal sound using wf-recorder</a></h4>
+<pre><code class="language-bash">wf-recorder \
+-aalsa_input.pci-0000_03_00.6.analog-stereo \
+-aalsa_output.pci-0000_03_00.6.analog-stereo.monitor \
+-f recording.mkv
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
